@@ -1,105 +1,85 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตรวจสอบคำต้องเชื่อม</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <title>ป๊อปกวางน้ำริน</title>
+    <!-- ลิงค์ไปยังฟอนต์ไอติมจาก Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            text-align: center;
+            font-family: 'Itim', sans-serif; /* ใช้ฟอนต์ไอติม */
+            background-color: #ffebf2;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #ff6fb2;
+            font-size: 3rem;
+            margin-top: 30px;
+            text-shadow: 2px 2px 5px rgba(255, 105, 180, 0.6);
         }
         .container {
-            max-width: 600px;
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 0 auto;
         }
-        .word-list {
-            max-height: 300px;
-            overflow-y: auto;
+        img {
+            width: 80%;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        img:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+        .score {
+            font-size: 1.5rem;
+            color: #ff6fb2;
+            margin-top: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
-    <div class="container mt-5">
-        <div class="card shadow-lg">
-            <div class="card-body">
-                <h2 class="text-center text-primary">🔗 ตรวจสอบคำต้องเชื่อม</h2>
-                <p class="text-center text-muted">ป้อนคำแล้วกด Enter เพื่อตรวจสอบ</p>
-
-                <div class="mb-3">
-                    <input type="text" id="wordInput" class="form-control" placeholder="พิมพ์คำที่นี่..." autofocus>
-                </div>
-
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        คำที่เพิ่มแล้ว
-                    </div>
-                    <ul id="wordList" class="list-group list-group-flush word-list"></ul>
-                </div>
-            </div>
-        </div>
+    <div class="container">
+        <h1>ป๊อปกวางน้ำริน</h1>
+        <img id="popcat" src="https://scontent-bkk1-1.xx.fbcdn.net/v/t1.15752-9/473763076_968479825245746_477635342527122414_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeENFwa-aig902Zi-8QoGYMmKXMAxPfzynspcwDE9_PKezahBK9G3DL-aB6Q3VNgpCpYq0qGDC6NZXIUAmLCSboi&_nc_ohc=5FREi9XW8EYQ7kNvgH0820t&_nc_zt=23&_nc_ht=scontent-bkk1-1.xx&oh=03_Q7cD1gF7rJW-5XNp_1w47oPITD5e9YBC3wugoySvmZz3LdCg3A&oe=67CAABD5" alt="Popcat">
+        <p class="score">Clicks: <span id="score">0</span></p>
     </div>
 
     <script>
-        let words = [];
+        let score = 0;
+        const popcat = document.getElementById("popcat");
+        const scoreDisplay = document.getElementById("score");
+        const openMouth = "https://scontent-bkk1-2.xx.fbcdn.net/v/t1.15752-9/475530855_1249579687168638_6525241354298285345_n.png?_nc_cat=107&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeE_OdNMIdcLx_9eP5cBhBM8zw6Jhf2uuB7PDomF_a64HjPH20amTLpOnq607gaQP48RHhcSSGWm9R4tXpuYkYex&_nc_ohc=tzY2N8bAxJYQ7kNvgEspHEI&_nc_zt=23&_nc_ht=scontent-bkk1-2.xx&oh=03_Q7cD1gHU-J_s1-3bJN-kVeDjgevHkYpJMtJWOFzObElv0_rtdA&oe=67CA7D44"; 
+        const closedMouth = "https://scontent-bkk1-1.xx.fbcdn.net/v/t1.15752-9/473763076_968479825245746_477635342527122414_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeENFwa-aig902Zi-8QoGYMmKXMAxPfzynspcwDE9_PKezahBK9G3DL-aB6Q3VNgpCpYq0qGDC6NZXIUAmLCSboi&_nc_ohc=5FREi9XW8EYQ7kNvgH0820t&_nc_zt=23&_nc_ht=scontent-bkk1-1.xx&oh=03_Q7cD1gF7rJW-5XNp_1w47oPITD5e9YBC3wugoySvmZz3LdCg3A&oe=67CAABD5"; 
+        const popSound = new Audio("https://www.myinstants.com/media/sounds/pew_pew-dknight556-1379997159.mp3");
 
-        function getSyllables(word) {
-            return word.split(/(?=[เแโใไะาิีึืุูั็่้๊๋์])/g);
-        }
+        popcat.addEventListener("mousedown", () => {
+            popcat.src = openMouth;
+            popSound.play();
+            popcat.style.transform = "scale(1.1)";
+            score++;
+            scoreDisplay.textContent = score;
 
-        document.getElementById("wordInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                let word = this.value.trim();
-                if (word === "") return;
-                
-                let newSyllables = getSyllables(word);
-                
-                // ตรวจสอบพยางค์ที่ซ้ำกันรวมถึงวรรณยุกต์
-                let duplicateWords = [];
-                for (let prevWord of words) {
-                    let prevSyllables = getSyllables(prevWord);
-                    if (newSyllables.some(syllable => prevSyllables.includes(syllable))) {
-                        duplicateWords.push(prevWord);
-                    }
-                }
-
-                if (duplicateWords.length > 0) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "คำมีพยางค์และวรรณยุกต์ซ้ำกัน",
-                        html: `คำนี้ซ้ำกับคำต่อไปนี้: <b>${duplicateWords.join(", ")}</b>`,
-                        showCancelButton: true,
-                        confirmButtonText: 'ไม่ซ้ำ',
-                        cancelButtonText: 'ซ้ำ',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            addWord(word);
-                        }
-                    });
-                    return;
-                }
-                
-                addWord(word);
-            }
+            // Keep the open mouth for 1 second before closing it
+            setTimeout(() => {
+                popcat.src = closedMouth;
+                popcat.style.transform = "scale(1)";
+            }, 200); // 1000 ms = 1 second
         });
 
-        function addWord(word) {
-            words.push(word);
-            let wordList = document.getElementById("wordList");
-            let listItem = document.createElement("li");
-            listItem.className = "list-group-item";
-            listItem.textContent = word;
-            wordList.appendChild(listItem);
-            document.getElementById("wordInput").value = "";
-        }
+        popcat.addEventListener("mouseup", () => {
+            // The mouth stays open for 1 second after mouse down, so no need to change here
+        });
     </script>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
