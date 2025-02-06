@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กรอก PIN : NANYSYTECH</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+        body {
+            background: #080808;
+            color: #0ff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        h2, p {
+            text-shadow: 0 0 10px #0ff;
+        }
+
+        .screen {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #0ff;
+            padding: 15px;
+            font-size: 24px;
+            width: 250px;
+            margin: auto;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #0ff;
+            word-wrap: break-word;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .key {
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #0ff;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #0ff;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .key:hover {
+            background: #0ff;
+            color: #000;
+        }
+
+        .key.special {
+            background: rgba(255, 0, 0, 0.3);
+            border: 2px solid red;
+            box-shadow: 0 0 10px red;
+        }
+
+        .key.submit {
+            background: rgba(0, 255, 0, 0.3);
+            border: 2px solid lime;
+            box-shadow: 0 0 10px lime;
+        }
+
+        .key.submit.loading {
+            animation: glow 0.5s infinite alternate, colorChange 1s infinite alternate;
+            cursor: not-allowed;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px lime; }
+            to { box-shadow: 0 0 20px white; }
+        }
+
+        @keyframes colorChange {
+            0% { background: rgba(0, 255, 0, 0.3); }
+            50% { background: rgba(0, 100, 255, 0.5); }
+            100% { background: rgba(255, 0, 0, 0.5); }
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 18px;
+            color: red;
+            text-shadow: 0 0 8px red;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>กรุณาใส่ PIN</h2>
+    <div class="screen" id="pinScreen">กรุณาใส่ PIN</div>
+    <p>โอกาสที่เหลือ: <span id="attemptsLeft">5</span></p>
+
+    <div class="keypad">
+        <div class="key" onclick="enterPIN(1)">1</div>
+        <div class="key" onclick="enterPIN(2)">2</div>
+        <div class="key" onclick="enterPIN(3)">3</div>
+        <div class="key" onclick="enterPIN(4)">4</div>
+        <div class="key" onclick="enterPIN(5)">5</div>
+        <div class="key" onclick="enterPIN(6)">6</div>
+        <div class="key" onclick="enterPIN(7)">7</div>
+        <div class="key" onclick="enterPIN(8)">8</div>
+        <div class="key" onclick="enterPIN(9)">9</div>
+        <div class="key special" onclick="clearPIN()">⌫</div>
+        <div class="key" onclick="enterPIN(0)">0</div>
+        <div class="key submit" id="submitBtn" onclick="submitPIN()">⏎</div>
+    </div>
+
+    <p id="message" class="message"></p>
+
+    <script>
+        let pinInput = "";
+        const maxAttempts = 5;
+        let attemptsLeft = localStorage.getItem("attemptsLeft") || maxAttempts;
+        attemptsLeft = parseInt(attemptsLeft);
+        updateAttemptsDisplay();
+
+        function enterPIN(num) {
+            if (attemptsLeft > 0) {
+                pinInput += num;
+                updateScreen();
+            }
+        }
+
+        function clearPIN() {
+            pinInput = "";
+            updateScreen();
+        }
+
+        function updateScreen() {
+            document.getElementById("pinScreen").innerText = pinInput || "กรุณาใส่ PIN";
+        }
+
+        function updateAttemptsDisplay() {
+            document.getElementById("attemptsLeft").innerText = attemptsLeft;
+        }
+
+        async function submitPIN() {
+            if (attemptsLeft <= 0) {
+                document.getElementById("message").innerText = "คุณใช้โอกาสครบแล้ว กรุณาลองใหม่ภายหลัง";
+                return;
+            }
+
+            if (pinInput.length === 0) {
+                document.getElementById("message").innerText = "กรุณาใส่ PIN";
+                return;
+            }
+
+            // เพิ่มเอฟเฟกต์โหลด
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.classList.add("loading");
+            submitBtn.onclick = null;
+
+            const gasUrl = "https://script.google.com/macros/s/AKfycbzD6Oy7csZHZ76JuiORaFoE50dpYqeSz-VUUGQlmRrpsP2_7QBGz9NdELV1_Jl3uEok/exec"; // ใส่ URL ของ GAS
+
+            try {
+                const response = await fetch(`${gasUrl}?pin=${pinInput}`);
+                const result = await response.json();
+
+                submitBtn.classList.remove("loading");
+                submitBtn.onclick = submitPIN; // คืนค่าฟังก์ชันให้กดได้อีกครั้ง
+
+                if (result.success) {
+                    window.location.href = result.url;
+                } else {
+                    attemptsLeft--;
+                    localStorage.setItem("attemptsLeft", attemptsLeft);
+                    updateAttemptsDisplay();
+
+                    if (attemptsLeft <= 0) {
+                        document.getElementById("message").innerText = "คุณใช้โอกาสครบแล้ว กรุณาลองใหม่ภายหลัง";
+                    } else {
+                        document.getElementById("message").innerText = `PIN ไม่ถูกต้อง! โอกาสที่เหลือ: ${attemptsLeft}`;
+                        clearPIN();
+                    }
+                }
+            } catch (error) {
+                submitBtn.classList.remove("loading");
+                submitBtn.onclick = submitPIN;
+                document.getElementById("message").innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+            }
+        }
+    </script>
+
+</body>
+</html>
+
