@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>กรอก PIN : NANGSYTECH</title>
+    <title>ระบบ PIN</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
@@ -97,7 +97,6 @@
 
     <h2>กรุณาใส่ PIN</h2>
     <div class="screen" id="pinScreen">กรุณาใส่ PIN</div>
-    <p>โอกาสที่เหลือ: <span id="attemptsLeft">5</span></p>
 
     <div class="keypad">
         <div class="key" onclick="enterPIN(1)">1</div>
@@ -118,16 +117,10 @@
 
     <script>
         let pinInput = "";
-        const maxAttempts = 5;
-        let attemptsLeft = localStorage.getItem("attemptsLeft") || maxAttempts;
-        attemptsLeft = parseInt(attemptsLeft);
-        updateAttemptsDisplay();
 
         function enterPIN(num) {
-            if (attemptsLeft > 0) {
-                pinInput += num;
-                updateScreen();
-            }
+            pinInput += num;
+            updateScreen();
         }
 
         function clearPIN() {
@@ -139,52 +132,38 @@
             document.getElementById("pinScreen").innerText = pinInput || "กรุณาใส่ PIN";
         }
 
-        function updateAttemptsDisplay() {
-            document.getElementById("attemptsLeft").innerText = attemptsLeft;
+        async function getUserIP() {
+            try {
+                let response = await fetch("https://api64.ipify.org?format=json");
+                let data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return "unknown";
+            }
         }
 
         async function submitPIN() {
-            if (attemptsLeft <= 0) {
-                document.getElementById("message").innerText = "คุณใช้โอกาสครบแล้ว กรุณาลองใหม่ภายหลัง";
-                return;
-            }
+            if (pinInput.length === 0) return;
 
-            if (pinInput.length === 0) {
-                document.getElementById("message").innerText = "กรุณาใส่ PIN";
-                return;
-            }
-
-            // เพิ่มเอฟเฟกต์โหลด
             const submitBtn = document.getElementById("submitBtn");
             submitBtn.classList.add("loading");
-            submitBtn.onclick = null;
 
-            const gasUrl = "https://script.google.com/macros/s/AKfycbzD6Oy7csZHZ76JuiORaFoE50dpYqeSz-VUUGQlmRrpsP2_7QBGz9NdELV1_Jl3uEok/exec"; // ใส่ URL ของ GAS
+            const userIP = await getUserIP();
+            const gasUrl = "https://script.google.com/macros/s/AKfycbzD6Oy7csZHZ76JuiORaFoE50dpYqeSz-VUUGQlmRrpsP2_7QBGz9NdELV1_Jl3uEok/exec";
 
             try {
-                const response = await fetch(`${gasUrl}?pin=${pinInput}`);
+                const response = await fetch(`${gasUrl}?pin=${pinInput}&userIP=${userIP}`);
                 const result = await response.json();
-
                 submitBtn.classList.remove("loading");
-                submitBtn.onclick = submitPIN; // คืนค่าฟังก์ชันให้กดได้อีกครั้ง
 
                 if (result.success) {
                     window.location.href = result.url;
                 } else {
-                    attemptsLeft--;
-                    localStorage.setItem("attemptsLeft", attemptsLeft);
-                    updateAttemptsDisplay();
-
-                    if (attemptsLeft <= 0) {
-                        document.getElementById("message").innerText = "คุณใช้โอกาสครบแล้ว กรุณาลองใหม่ภายหลัง";
-                    } else {
-                        document.getElementById("message").innerText = `PIN ไม่ถูกต้อง! โอกาสที่เหลือ: ${attemptsLeft}`;
-                        clearPIN();
-                    }
+                    document.getElementById("message").innerText = result.message;
+                    clearPIN();
                 }
             } catch (error) {
                 submitBtn.classList.remove("loading");
-                submitBtn.onclick = submitPIN;
                 document.getElementById("message").innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
             }
         }
@@ -192,4 +171,3 @@
 
 </body>
 </html>
-
