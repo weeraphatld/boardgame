@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ขอเป็นแฟน</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            padding: 50px;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            color: #d63384;
+        }
+        #container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #yesBtn {
+            background: #ff69b4;
+            color: white;
+            box-shadow: 0px 4px 10px rgba(255, 105, 180, 0.4);
+        }
+        #noBtn {
+            background: #f8d7da;
+            color: #d63384;
+            margin-left: 10px;
+        }
+        #yesBtn:hover, #noBtn:hover {
+            transform: scale(1.1);
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                font-size: 16px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1 id="question">เธอจะเป็นแฟนกับเราไหม? 💕</h1>
+        <button id="yesBtn" onclick="acceptLove()">ตกลง 💖</button>
+        <button id="noBtn" onclick="rejectLove()">ไม่ ❌</button>
+    </div>
+    <script>
+        let noCount = 0;
+        const messages = [
+            "ทำไมถึงกดไม่อะ? 😢",
+            "แน่ใจหรอ? เราน่ารักนะ 🥺",
+            "คิดดีๆ นะ เดี๋ยวเสียใจนะ 😆",
+            "เราจะงอแงแล้วนะ!! 😤",
+            "ไม่ได้นะ! เธอต้องตกลงสิ! 🤬",
+            "งั้นเราจะตามตื๊อล่ะนะ! 🤭",
+            "กดตกลงเถอะนะ นะๆๆๆๆ 🥰",
+            "ไม่กดตกลง เราจะร้องไห้แล้วนะ 😭",
+            "โอเค!! เธอไม่มีทางเลือกแล้ว!! 🤯",
+            "สุดท้ายแล้ว! กดตกลงซะ!!! 😈"
+        ];
+
+        function rejectLove() {
+            noCount++;
+            if (noCount < 10) {
+                document.getElementById("question").innerText = messages[noCount - 1];
+                let yesBtn = document.getElementById("yesBtn");
+                yesBtn.style.fontSize = (20 + noCount * 5) + "px";
+                yesBtn.style.padding = (10 + noCount * 2) + "px " + (20 + noCount * 2) + "px";
+            } else {
+                document.getElementById("noBtn").classList.add("hidden");
+                let yesBtn = document.getElementById("yesBtn");
+                yesBtn.style.fontSize = "100px";
+                yesBtn.style.padding = "40px 80px";
+                yesBtn.style.width = "100%";
+                document.getElementById("question").innerText = "ไม่มีทางเลือกแล้ว! กดตกลงซะ!!! 😈";
+            }
+        }
+
+        function acceptLove() {
+            document.body.innerHTML = `
+                <h1>เราเป็นแฟนกันแล้วนะ! 💑💕</h1>
+                <img src="https://media.giphy.com/media/3oz8xKaR829Icj5DnW/giphy.gif" alt="คู่รัก" width="300">
+            `;
+        }
+    </script>
+</body>
+</html>
